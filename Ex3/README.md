@@ -1,14 +1,50 @@
-题目3：编写MapReduce，统计这两个文件
 
-`/user/hadoop/mapred_dev_double/ip_time`
+public class IpReadme {
+	public static  class  IndexMapper extends Mapper<LongWritable, Text,Text, IntWritable>{
+		private Set<String> set1 = new HashSet<String>();
+		public void Mapper(LongWritable key,Text value,Context context) throws IOException, InterruptedException{
+			String line =value.toString();
+			String str[] =line.split("\t");
+			FileSplit fileSplit=(FileSplit) context.getInputSplit();
+			String path=fileSplit.getPath().toString();
+          if(path.contains("ip_time")){
+          	set1.add(fields[0]);
+           }else{
+             	set2.add(fields[0]);
+            }
+ 	}
+			
+		}
+	}
+	public static class IndexReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
 
-`/user/hadoop/mapred_dev_double/ip_time_2`
+		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
+				throws IOException, InterruptedException {
+			// TODO Auto-generated method stub
+			 Set<String> set = new HashSet<String>();
+			 
 
-当中，重复出现的IP的数量(40分)
+	
+		}
+		
+	}
+	public static void main(String[] args) throws Exception {
+		 Configuration conf = new Configuration();
 
----
-加分项：
+		    Job job = new Job(conf, "Date-Single");
+		    job.setJarByClass(Single.class);
+		    //设置Map、Combine和Reduce处理类
+		    job.setMapperClass(Map.class);
+		    job.setCombinerClass(Reduce.class);
+		    job.setReducerClass(Reduce.class);
+		    //设置输出类型
+		    job.setOutputKeyClass(Text.class);	
+		    job.setOutputValueClass(Text.class);
 
-1. 写出程序里面考虑到的优化点，每个优化点+5分。
-2. 额外使用Hive实现，+5分。
-3. 额外使用HBase实现，+5分。
+		    FileInputFormat.addInputPath(job, new Path(args[0]));
+		    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		    System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+		}
+}
